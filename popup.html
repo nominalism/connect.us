@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streamsync</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 320px;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .role-selection {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: #1a1a1a;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .role-btn {
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: #666;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .role-btn:hover {
+      color: #fff;
+    }
+
+    .role-btn.active {
+      background: #333;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      font-family: monospace;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #555;
+    }
+
+    .room-code-display {
+      background: #1a1a1a;
+      border: 1px dashed #333;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .room-code-display .code {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      font-family: monospace;
+      color: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-chat {
+      background: #222;
+      color: #fff;
+      border: 1px solid #333;
+      margin-top: 12px;
+    }
+
+    .btn-chat:hover {
+      border-color: #555;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: #ff4444;
+      border: 1px solid #ff444433;
+      margin-top: 12px;
+    }
+
+    .btn-danger:hover {
+      background: #ff444411;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #444;
+    }
+
+    .status-dot.waiting {
+      background: #ffaa00;
+      box-shadow: 0 0 8px #ffaa0066;
+    }
+
+    .status-dot.connected {
+      background: #00ff88;
+      box-shadow: 0 0 8px #00ff8866;
+    }
+
+
+    .role-btn .icon {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>connect.us</h1>
+    <p>Watch together</p>
+  </div>
+
+  <div id="roleSelection" class="role-selection">
+    <button class="role-btn" id="leaderBtn">Host</button>
+    <button class="role-btn" id="friendBtn">Join</button>
+  </div>
+
+
+  <div id="leaderSection" class="section">
+    <button class="btn btn-primary" id="createRoomBtn">Start Room</button>
+  </div>
+
+  <div id="leaderActiveSection" class="section">
+    <div class="status">
+      <div class="status-dot waiting" id="leaderStatusDot"></div>
+      <span id="leaderStatusText">Waiting for friend...</span>
+    </div>
+    <div class="room-code-display">
+      <div class="code" id="roomCodeDisplay">------</div>
+    </div>
+    <button class="btn btn-chat" id="toggleChatLeaderBtn">Open Chat</button>
+    <button class="btn btn-danger" id="closeRoomBtn">End Session</button>
+  </div>
+
+
+  <div id="friendSection" class="section">
+    <div class="input-group">
+      <label>Room Code</label>
+      <input type="text" id="roomCodeInput" placeholder="000000" maxlength="6">
+    </div>
+    <button class="btn btn-primary" id="joinRoomBtn">Connect</button>
+  </div>
+
+  <div id="friendActiveSection" class="section">
+    <div class="status">
+      <div class="status-dot connected" id="friendStatusDot"></div>
+      <span id="friendStatusText">Connected</span>
+    </div>
+    <button class="btn btn-chat" id="toggleChatFriendBtn">Open Chat</button>
+    <button class="btn btn-danger" id="leaveRoomBtn">Disconnect</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
